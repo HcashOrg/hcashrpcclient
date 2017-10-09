@@ -87,6 +87,29 @@ func (r FutureListTransactionsResult) Receive() ([]hcashjson.ListTransactionsRes
 	return transactions, nil
 }
 
+// FutureListTxsResult is a future promise to deliver the result of a
+// ListTxsAsync, ListTxsCountAsync, or
+// ListTxsCountFromAsync RPC invocation (or an applicable error).
+type FutureListTxsResult chan *response
+
+// Receive waits for the response promised by the future and returns a list of
+// the most recent transactions.
+func (r FutureListTxsResult) Receive() ([]hcashjson.ListTxsResult, error) {
+	res, err := receiveFuture(r)
+	if err != nil {
+		return nil, err
+	}
+
+	// Unmarshal result as an array of listtxs result objects.
+	var transactions []hcashjson.ListTxsResult
+	err = json.Unmarshal(res, &transactions)
+	if err != nil {
+		return nil, err
+	}
+
+	return transactions, nil
+}
+
 // ListTransactionsAsync returns an instance of a type that can be used to get
 // the result of the RPC at some future time by invoking the Receive function on
 // the returned instance.
@@ -134,12 +157,30 @@ func (c *Client) ListTransactionsCountFromAsync(account string, count, from int)
 	return c.sendCmd(cmd)
 }
 
+// ListTxsCountFromAsync returns an instance of a type that can be used
+// to get the result of the RPC at some future time by invoking the Receive
+// function on the returned instance.
+//
+// See ListTxsCountFrom for the blocking version and more details.
+func (c *Client) ListTxsCountFromAsync(account string, txType, count, from int) FutureListTxsResult {
+	cmd := hcashjson.NewListTxsCmd(&account, &txType, &count, &from, nil)
+	return c.sendCmd(cmd)
+}
+
 // ListTransactionsCountFrom returns a list of the most recent transactions up
 // to the passed count while skipping the first 'from' transactions.
 //
 // See the ListTransactions and ListTransactionsCount functions to use defaults.
 func (c *Client) ListTransactionsCountFrom(account string, count, from int) ([]hcashjson.ListTransactionsResult, error) {
 	return c.ListTransactionsCountFromAsync(account, count, from).Receive()
+}
+
+// ListTxsCountFrom returns a list of the most recent transactions up
+// to the passed count while skipping the first 'from' transactions.
+//
+// See the ListTxs and ListTxsCount functions to use defaults.
+func (c *Client) ListTxsCountFrom(account string, txType, count, from int) ([]hcashjson.ListTxsResult, error) {
+	return c.ListTxsCountFromAsync(account, txType, count, from).Receive()
 }
 
 // FutureListUnspentResult is a future promise to deliver the result of a
