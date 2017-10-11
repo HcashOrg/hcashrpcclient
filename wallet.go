@@ -486,7 +486,7 @@ func (r FutureSendToAddressResult) Receive() (*chainhash.Hash, error) {
 // See SendToAddress for the blocking version and more details.
 func (c *Client) SendToAddressAsync(address hcashutil.Address, amount hcashutil.Amount) FutureSendToAddressResult {
 	addr := address.EncodeAddress()
-	cmd := hcashjson.NewSendToAddressCmd(addr, amount.ToCoin(), nil, nil)
+	cmd := hcashjson.NewSendToAddressCmd(addr, amount.ToCoin(), 0, nil, nil)
 	return c.sendCmd(cmd)
 }
 
@@ -508,11 +508,11 @@ func (c *Client) SendToAddress(address hcashutil.Address, amount hcashutil.Amoun
 //
 // See SendToAddressComment for the blocking version and more details.
 func (c *Client) SendToAddressCommentAsync(address hcashutil.Address,
-	amount hcashutil.Amount, comment,
+	amount hcashutil.Amount, notSend int, comment,
 	commentTo string) FutureSendToAddressResult {
 
 	addr := address.EncodeAddress()
-	cmd := hcashjson.NewSendToAddressCmd(addr, amount.ToCoin(), &comment,
+	cmd := hcashjson.NewSendToAddressCmd(addr, amount.ToCoin(), notSend, &comment,
 		&commentTo)
 	return c.sendCmd(cmd)
 }
@@ -529,8 +529,8 @@ func (c *Client) SendToAddressCommentAsync(address hcashutil.Address,
 //
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
-func (c *Client) SendToAddressComment(address hcashutil.Address, amount hcashutil.Amount, comment, commentTo string) (*chainhash.Hash, error) {
-	return c.SendToAddressCommentAsync(address, amount, comment,
+func (c *Client) SendToAddressComment(address hcashutil.Address, amount hcashutil.Amount, notSend int,comment, commentTo string) (*chainhash.Hash, error) {
+	return c.SendToAddressCommentAsync(address, amount, notSend, comment,
 		commentTo).Receive()
 }
 
@@ -563,9 +563,9 @@ func (r FutureSendFromResult) Receive() (*chainhash.Hash, error) {
 // returned instance.
 //
 // See SendFrom for the blocking version and more details.
-func (c *Client) SendFromAsync(fromAccount string, toAddress hcashutil.Address, amount hcashutil.Amount) FutureSendFromResult {
+func (c *Client) SendFromAsync(fromAccount string, toAddress hcashutil.Address, amount hcashutil.Amount, notSend int) FutureSendFromResult {
 	addr := toAddress.EncodeAddress()
-	cmd := hcashjson.NewSendFromCmd(fromAccount, addr, amount.ToCoin(), nil,
+	cmd := hcashjson.NewSendFromCmd(fromAccount, addr, amount.ToCoin(), &notSend, nil,
 		nil, nil)
 	return c.sendCmd(cmd)
 }
@@ -578,8 +578,8 @@ func (c *Client) SendFromAsync(fromAccount string, toAddress hcashutil.Address, 
 //
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
-func (c *Client) SendFrom(fromAccount string, toAddress hcashutil.Address, amount hcashutil.Amount) (*chainhash.Hash, error) {
-	return c.SendFromAsync(fromAccount, toAddress, amount).Receive()
+func (c *Client) SendFrom(fromAccount string, toAddress hcashutil.Address, amount hcashutil.Amount, notSend int) (*chainhash.Hash, error) {
+	return c.SendFromAsync(fromAccount, toAddress, amount, notSend).Receive()
 }
 
 // SendFromMinConfAsync returns an instance of a type that can be used to get
@@ -587,9 +587,9 @@ func (c *Client) SendFrom(fromAccount string, toAddress hcashutil.Address, amoun
 // the returned instance.
 //
 // See SendFromMinConf for the blocking version and more details.
-func (c *Client) SendFromMinConfAsync(fromAccount string, toAddress hcashutil.Address, amount hcashutil.Amount, minConfirms int) FutureSendFromResult {
+func (c *Client) SendFromMinConfAsync(fromAccount string, toAddress hcashutil.Address, amount hcashutil.Amount, notSend, minConfirms int) FutureSendFromResult {
 	addr := toAddress.EncodeAddress()
-	cmd := hcashjson.NewSendFromCmd(fromAccount, addr, amount.ToCoin(),
+	cmd := hcashjson.NewSendFromCmd(fromAccount, addr, amount.ToCoin(), &notSend,
 		&minConfirms, nil, nil)
 	return c.sendCmd(cmd)
 }
@@ -603,8 +603,8 @@ func (c *Client) SendFromMinConfAsync(fromAccount string, toAddress hcashutil.Ad
 //
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
-func (c *Client) SendFromMinConf(fromAccount string, toAddress hcashutil.Address, amount hcashutil.Amount, minConfirms int) (*chainhash.Hash, error) {
-	return c.SendFromMinConfAsync(fromAccount, toAddress, amount,
+func (c *Client) SendFromMinConf(fromAccount string, toAddress hcashutil.Address, amount hcashutil.Amount, notSend, minConfirms int) (*chainhash.Hash, error) {
+	return c.SendFromMinConfAsync(fromAccount, toAddress, amount, notSend,
 		minConfirms).Receive()
 }
 
@@ -614,11 +614,11 @@ func (c *Client) SendFromMinConf(fromAccount string, toAddress hcashutil.Address
 //
 // See SendFromComment for the blocking version and more details.
 func (c *Client) SendFromCommentAsync(fromAccount string,
-	toAddress hcashutil.Address, amount hcashutil.Amount, minConfirms int,
+	toAddress hcashutil.Address, amount hcashutil.Amount, notSend, minConfirms int,
 	comment, commentTo string) FutureSendFromResult {
 
 	addr := toAddress.EncodeAddress()
-	cmd := hcashjson.NewSendFromCmd(fromAccount, addr, amount.ToCoin(),
+	cmd := hcashjson.NewSendFromCmd(fromAccount, addr, amount.ToCoin(), &notSend,
 		&minConfirms, &comment, &commentTo)
 	return c.sendCmd(cmd)
 }
@@ -635,10 +635,10 @@ func (c *Client) SendFromCommentAsync(fromAccount string,
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
 func (c *Client) SendFromComment(fromAccount string, toAddress hcashutil.Address,
-	amount hcashutil.Amount, minConfirms int,
+	amount hcashutil.Amount, notSend, minConfirms int,
 	comment, commentTo string) (*chainhash.Hash, error) {
 
-	return c.SendFromCommentAsync(fromAccount, toAddress, amount,
+	return c.SendFromCommentAsync(fromAccount, toAddress, amount, notSend,
 		minConfirms, comment, commentTo).Receive()
 }
 
