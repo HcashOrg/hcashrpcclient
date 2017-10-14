@@ -162,7 +162,7 @@ func (c *Client) ListTransactionsCountFromAsync(account string, count, from int)
 // function on the returned instance.
 //
 // See ListTxsCountFrom for the blocking version and more details.
-func (c *Client) ListTxsCountFromAsync(account string, txType, count, from int) FutureListTxsResult {
+func (c *Client) ListTxsCountFromAsync(account string, txType int, count, from int64) FutureListTxsResult {
 	cmd := hcashjson.NewListTxsCmd(&account, &txType, &count, &from, nil)
 	return c.sendCmd(cmd)
 }
@@ -179,7 +179,7 @@ func (c *Client) ListTransactionsCountFrom(account string, count, from int) ([]h
 // to the passed count while skipping the first 'from' transactions.
 //
 // See the ListTxs and ListTxsCount functions to use defaults.
-func (c *Client) ListTxsCountFrom(account string, txType, count, from int) ([]hcashjson.ListTxsResult, error) {
+func (c *Client) ListTxsCountFrom(account string, txType int, count, from int64) ([]hcashjson.ListTxsResult, error) {
 	return c.ListTxsCountFromAsync(account, txType, count, from).Receive()
 }
 
