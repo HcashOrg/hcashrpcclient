@@ -94,14 +94,14 @@ type FutureListTxsResult chan *response
 
 // Receive waits for the response promised by the future and returns a list of
 // the most recent transactions.
-func (r FutureListTxsResult) Receive() ([]hcashjson.ListTxsResult, error) {
+func (r FutureListTxsResult) Receive() (hcashjson.ListTxsResult, error) {
 	res, err := receiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as an array of listtxs result objects.
-	var transactions []hcashjson.ListTxsResult
+	var transactions hcashjson.ListTxsResult
 	err = json.Unmarshal(res, &transactions)
 	if err != nil {
 		return nil, err
@@ -179,7 +179,7 @@ func (c *Client) ListTransactionsCountFrom(account string, count, from int) ([]h
 // to the passed count while skipping the first 'from' transactions.
 //
 // See the ListTxs and ListTxsCount functions to use defaults.
-func (c *Client) ListTxsCountFrom(account string, txType int, count, from int64) ([]hcashjson.ListTxsResult, error) {
+func (c *Client) ListTxsCountFrom(account string, txType int, count, from int64) (hcashjson.ListTxsResult, error) {
 	return c.ListTxsCountFromAsync(account, txType, count, from).Receive()
 }
 
