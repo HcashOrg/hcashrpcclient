@@ -96,15 +96,15 @@ type FutureListTxsResult chan *response
 // the most recent transactions.
 func (r FutureListTxsResult) Receive() (hcashjson.ListTxsResult, error) {
 	res, err := receiveFuture(r)
-	if err != nil {
-		return nil, err
-	}
-
 	// Unmarshal result as an array of listtxs result objects.
 	var transactions hcashjson.ListTxsResult
+	if err != nil {
+		return transactions, err
+	}
+
 	err = json.Unmarshal(res, &transactions)
 	if err != nil {
-		return nil, err
+		return transactions, err
 	}
 
 	return transactions, nil
