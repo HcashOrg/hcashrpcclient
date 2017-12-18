@@ -1511,11 +1511,27 @@ func (r FutureLoadTxFilterResult) Receive() error {
 // NOTE: This is a hcashd extension and requires a websocket connection.
 func (c *Client) LoadTxFilterAsync(reload bool, addresses []hcashutil.Address,
 	outPoints []wire.OutPoint) FutureLoadTxFilterResult {
-
 	addrStrs := make([]string, len(addresses))
-	for i, a := range addresses {
-		addrStrs[i] = a.EncodeAddress()
-	}
+
+			for i, a := range addresses {
+				switch addr := a.(type) {
+				case *hcashutil.AddressSecpPubKey :
+					addrStrs[i] = addr.EncodeAddress()
+				case *hcashutil.AddressBlissPubKey:
+					addrStrs[i] = addr.EncodeAddress()
+				case *hcashutil.AddressPubKeyHash:
+					addrStrs[i] = addr.EncodeAddress()
+				case *hcashutil.AddressScriptHash:
+					addrStrs[i] = addr.EncodeAddress()
+				default:
+					addrStrs[i] = addr.EncodeAddress()
+				}
+			}
+	/*
+		for i, a := range addresses {
+			addrStrs[i] = a.EncodeAddress()
+		}
+	*/
 	outPointObjects := make([]hcashjson.OutPoint, len(outPoints))
 	for i := range outPoints {
 		outPointObjects[i] = hcashjson.OutPoint{
@@ -1524,7 +1540,6 @@ func (c *Client) LoadTxFilterAsync(reload bool, addresses []hcashutil.Address,
 			Tree:  outPoints[i].Tree,
 		}
 	}
-
 	cmd := hcashjson.NewLoadTxFilterCmd(reload, addrStrs, outPointObjects)
 	return c.sendCmd(cmd)
 }

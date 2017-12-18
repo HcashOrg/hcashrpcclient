@@ -1332,14 +1332,14 @@ func (r FutureCreateNewAccountResult) Receive() error {
 // returned instance.
 //
 // See CreateNewAccount for the blocking version and more details.
-func (c *Client) CreateNewAccountAsync(account string) FutureCreateNewAccountResult {
-	cmd := hcashjson.NewCreateNewAccountCmd(account)
+func (c *Client) CreateNewAccountAsync(account string, acctype string) FutureCreateNewAccountResult {
+	cmd := hcashjson.NewCreateNewAccountCmd(account, acctype)
 	return c.sendCmd(cmd)
 }
 
 // CreateNewAccount creates a new wallet account.
-func (c *Client) CreateNewAccount(account string) error {
-	return c.CreateNewAccountAsync(account).Receive()
+func (c *Client) CreateNewAccount(account string, acctype string) error {
+	return c.CreateNewAccountAsync(account, acctype).Receive()
 }
 
 // FutureGetNewAddressResult is a future promise to deliver the result of a
