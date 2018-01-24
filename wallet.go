@@ -676,7 +676,7 @@ func (c *Client) SendManyAsync(fromAccount string, amounts map[hcashutil.Address
 	for addr, amount := range amounts {
 		convertedAmounts[addr.EncodeAddress()] = amount.ToCoin()
 	}
-	cmd := hcashjson.NewSendManyCmd(fromAccount, convertedAmounts, nil, nil)
+	cmd := hcashjson.NewSendManyCmd(fromAccount, convertedAmounts, nil,nil, nil)
 	return c.sendCmd(cmd)
 }
 
@@ -698,14 +698,14 @@ func (c *Client) SendMany(fromAccount string, amounts map[hcashutil.Address]hcas
 //
 // See SendManyMinConf for the blocking version and more details.
 func (c *Client) SendManyMinConfAsync(fromAccount string,
-	amounts map[hcashutil.Address]hcashutil.Amount,
+	amounts map[hcashutil.Address]hcashutil.Amount, notsend int,
 	minConfirms int) FutureSendManyResult {
 
 	convertedAmounts := make(map[string]float64, len(amounts))
 	for addr, amount := range amounts {
 		convertedAmounts[addr.EncodeAddress()] = amount.ToCoin()
 	}
-	cmd := hcashjson.NewSendManyCmd(fromAccount, convertedAmounts,
+	cmd := hcashjson.NewSendManyCmd(fromAccount, convertedAmounts, &notsend,
 		&minConfirms, nil)
 	return c.sendCmd(cmd)
 }
@@ -720,10 +720,10 @@ func (c *Client) SendManyMinConfAsync(fromAccount string,
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
 func (c *Client) SendManyMinConf(fromAccount string,
-	amounts map[hcashutil.Address]hcashutil.Amount,
+	amounts map[hcashutil.Address]hcashutil.Amount, notsend int,
 	minConfirms int) (*chainhash.Hash, error) {
 
-	return c.SendManyMinConfAsync(fromAccount, amounts, minConfirms).Receive()
+	return c.SendManyMinConfAsync(fromAccount, amounts, notsend, minConfirms).Receive()
 }
 
 // SendManyCommentAsync returns an instance of a type that can be used to get
@@ -732,14 +732,14 @@ func (c *Client) SendManyMinConf(fromAccount string,
 //
 // See SendManyComment for the blocking version and more details.
 func (c *Client) SendManyCommentAsync(fromAccount string,
-	amounts map[hcashutil.Address]hcashutil.Amount, minConfirms int,
+	amounts map[hcashutil.Address]hcashutil.Amount, notsend int, minConfirms int,
 	comment string) FutureSendManyResult {
 
 	convertedAmounts := make(map[string]float64, len(amounts))
 	for addr, amount := range amounts {
 		convertedAmounts[addr.EncodeAddress()] = amount.ToCoin()
 	}
-	cmd := hcashjson.NewSendManyCmd(fromAccount, convertedAmounts,
+	cmd := hcashjson.NewSendManyCmd(fromAccount, convertedAmounts, &notsend,
 		&minConfirms, &comment)
 	return c.sendCmd(cmd)
 }
@@ -755,10 +755,10 @@ func (c *Client) SendManyCommentAsync(fromAccount string,
 // NOTE: This function requires to the wallet to be unlocked.  See the
 // WalletPassphrase function for more details.
 func (c *Client) SendManyComment(fromAccount string,
-	amounts map[hcashutil.Address]hcashutil.Amount, minConfirms int,
+	amounts map[hcashutil.Address]hcashutil.Amount, notsend int, minConfirms int,
 	comment string) (*chainhash.Hash, error) {
 
-	return c.SendManyCommentAsync(fromAccount, amounts, minConfirms,
+	return c.SendManyCommentAsync(fromAccount, amounts, notsend, minConfirms,
 		comment).Receive()
 }
 
