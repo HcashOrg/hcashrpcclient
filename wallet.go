@@ -676,7 +676,7 @@ func (c *Client) SendManyAsync(fromAccount string, amounts map[hcashutil.Address
 	for addr, amount := range amounts {
 		convertedAmounts[addr.EncodeAddress()] = amount.ToCoin()
 	}
-	cmd := hcashjson.NewSendManyCmd(fromAccount, convertedAmounts, nil, nil, nil)
+	cmd := hcashjson.NewSendManyCmd(fromAccount, convertedAmounts, nil, nil)
 	return c.sendCmd(cmd)
 }
 
